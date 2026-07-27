@@ -41,14 +41,21 @@ The website needs matching production variables:
 ## Runtime behavior
 
 1. `/record` sends an authenticated request to `POST /recordings/start`.
-2. The bot joins the selected voice or stage channel without self-deafening.
-3. Only human member audio is received and recorded.
+2. The bot joins the selected voice or stage channel and announces, "This
+   channel is being recorded."
+3. The bot remains able to speak while only human member audio is received and
+   recorded.
 4. Ten seconds after the last human leaves, the worker mixes the timed audio segments into a speech-optimized MP3.
 5. The MP3 is uploaded to the private website completion endpoint.
 6. The website runs Gemini transcription, archives the MP3 and editable DOCX in Internal Documents and Google Drive when configured, and posts links in `#Botlog` or `#Botlogs`.
 
 The same persistent Gateway connection sends every human-authored message to the website log endpoint and adds ✅ only after the website confirms the message was stored. Bot-authored messages are intentionally excluded.
 
-`GET /health` reports whether Discord is connected and how many recordings are active. `POST /recordings/stop` can finalize an active session manually.
+`GET /health` reports whether Discord is connected, whether speech is ready,
+and how many recordings are active. `POST /recordings/stop` finalizes one
+session, `POST /recordings/stop-all` finalizes every session, and
+`POST /speech` speaks an administrator-provided message in a selected voice
+channel. Speech is generated locally with `espeak-ng`; it does not require an
+AI or text-to-speech API key.
 
 Build this repository's `Dockerfile` on an always-on Docker host with outbound HTTPS, WebSocket, and UDP access. Use one replica so the in-memory active session map cannot split across instances.
