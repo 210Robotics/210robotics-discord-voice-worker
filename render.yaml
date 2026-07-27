@@ -2,7 +2,7 @@ services:
   - type: web
     name: 210-robotics-discord-voice-worker
     runtime: docker
-    plan: starter
+    plan: free
     dockerfilePath: ./Dockerfile
     dockerContext: .
     healthCheckPath: /health
