@@ -24,7 +24,7 @@ This always-on worker powers the `/record` command, website-backed message loggi
 
 6. Redeploy the website and confirm `https://your-service.onrender.com/health` returns an `ok` response.
 
-Use an always-on Render instance. A sleeping instance is not reliable for Discord Gateway connections or active voice recordings.
+The worker sends a low-frequency health request through its Render external URL while a recording is active so a Free web service does not idle out in the middle of a meeting. It stops the keepalive as soon as finalization finishes. For the strongest reliability against platform maintenance or arbitrary Free instance restarts, use an always-on paid instance.
 
 ## Required environment
 
@@ -48,6 +48,7 @@ The website needs matching production variables:
 4. Ten seconds after the last human leaves, the worker mixes the timed audio segments into a speech-optimized MP3.
 5. The MP3 is uploaded to the private website completion endpoint.
 6. The website runs Gemini transcription, archives the MP3 and editable DOCX in Internal Documents and Google Drive when configured, and posts links in `#Botlog` or `#Botlogs`.
+7. If Render requests a shutdown, the worker gets up to five minutes to finish rendering and upload any active recording before the instance exits.
 
 The same persistent Gateway connection sends every human-authored message to the website log endpoint and adds ✅ only after the website confirms the message was stored. Bot-authored messages are intentionally excluded.
 
